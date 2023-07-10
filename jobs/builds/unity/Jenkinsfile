@@ -1,0 +1,58 @@
+/* https://www.jenkins.io/doc/book/pipeline/shared-libraries/ */
+@Library("jenkins-shared-library")
+
+/* https://www.jenkins.io/doc/book/pipeline/ */
+pipeline {
+    
+    /* https://www.jenkins.io/doc/book/pipeline/syntax/#agent */
+    agent { label "unity" }
+    
+    /* https://www.jenkins.io/doc/book/pipeline/syntax/#environment */
+    environment {
+        config = readJSON file: "jobs/builds/unity/${params.REPO}.json"
+        FOO = "${config.Foo}"
+    }
+    
+    /* https://www.jenkins.io/doc/book/pipeline/syntax/#options */
+    options {
+        timestamps()
+	  }
+    
+    /* https://www.jenkins.io/doc/book/pipeline/syntax/#parameters */
+    parameters {
+        string(name: "REPO", defaultValue: "", description: "The git repo")
+        string(name: "BRANCH", defaultValue: "", description: "The git branch")
+    }
+    
+    /* https://www.jenkins.io/doc/book/pipeline/syntax/#triggers */
+    triggers {
+        GenericTrigger(
+            causeString: "Generic WebHook",
+            genericVariables: [
+                [expressionType: "JSONPath", key: "REPO", value: "\$.REPO"],
+                [expressionType: "JSONPath", key: "BRANCH", value: "\$.BRANCH"]
+            ],
+            printPostContent: true,
+            token: "Unity"
+        )
+    }
+    
+    /* https://www.jenkins.io/doc/book/pipeline/syntax/#stages */
+    stages {
+
+        stage("Print Foo") {
+            steps {
+                sh "echo ${FOO}"
+            }
+        }
+      
+    }
+    
+    /* https://www.jenkins.io/doc/book/pipeline/syntax/#post */
+    post {
+        always {
+            archiveArtifacts artifacts: "artifacts/**/*"
+        }
+    }
+    
+}
