@@ -1,7 +1,7 @@
-/* https://www.jenkins.io/doc/book/pipeline/shared-libraries/ */
+/* https://www.jenkins.io/doc/book/pipeline/shared-libraries */
 @Library("jenkins-shared-library")
 
-/* https://www.jenkins.io/doc/book/pipeline/ */
+/* https://www.jenkins.io/doc/book/pipeline */
 pipeline {
     
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#agent */
@@ -16,7 +16,7 @@ pipeline {
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#options */
     options {
         timestamps()
-	  }
+    }
     
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#parameters */
     parameters {
