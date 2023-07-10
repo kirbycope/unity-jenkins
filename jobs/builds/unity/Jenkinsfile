@@ -43,7 +43,8 @@ pipeline {
         
         stage("Cleanup") {
             steps {
-                cleanWs() // https://plugins.jenkins.io/ws-cleanup/
+                // https://plugins.jenkins.io/ws-cleanup
+                cleanWs()
             }
         }
         
