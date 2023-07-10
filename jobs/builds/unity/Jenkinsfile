@@ -1,5 +1,6 @@
 /* https://www.jenkins.io/doc/book/pipeline/shared-libraries */
-@Library("jenkins-shared-library")
+// https://github.com/kirbycope/jenkins-shared-library
+@Library("jenkins-shared-library") _
 
 /* https://www.jenkins.io/doc/book/pipeline */
 pipeline {
@@ -39,7 +40,13 @@ pipeline {
     
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#stages */
     stages {
-
+        
+        stage("Cleanup") {
+            steps {
+                cleanWs() // https://plugins.jenkins.io/ws-cleanup/
+            }
+        }
+        
         stage("Print Foo") {
             steps {
                 sh "echo ${FOO}"
