@@ -21,6 +21,8 @@ pipeline {
         ALTTESTER_UNITY_BUILD_METHOD_GOOGLE = "${config.altTesterBuildMethodGoogle}"
         ALTTESTER_INPUT_SYSTEM = "${config.altTesterInputSystem}"
         ALTTESTER_INCLUDE_NEWTONSOFT = "${config.altTesterIncludeNewtonsoft}"
+        UNITY_APPLE_EXECUTE_METHOD = "${config.unityAppleExecuteMethod}"
+        UNITY_GOOGLE_EXECUTE_METHOD = "${config.unityGoogleExecuteMethod}"
         UNITY_PROJECT_PATH="${WORKSPACE}/${params.REPO}"
         UNITY_VERSION = ""
     }
@@ -88,6 +90,7 @@ pipeline {
             }
             steps {
                 echo "Apple build"
+                buildUnity("apple")
             }
         }
 
@@ -97,6 +100,7 @@ pipeline {
             }
             steps {
                 echo "Google build"
+                buildUnity("google")
             }
         }
 
@@ -136,4 +140,20 @@ def buildApple() {
 
 def buildGoogle() {
     //
+}
+
+/**
+* Runs the Unity build.
+*
+* @param String target The Build Target ("Apple" or "Google").
+*/
+def buildUnity(target) {
+    def UNITY_CMD = "/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -batchmode -nographics -stackTraceLogType Full -quit -logFile ${target}-build.log"
+    if (target.toLowerCase() == "apple") {
+        UNITY_CMD = "$UNITY_CMD -buildTarget $target -executeMethod ${UNITY_APPLE_EXECUTE_METHOD} -projectPath ${UNITY_PROJECT_PATH}"
+    }
+    else if (target.toLowerCase() == "google") {
+        UNITY_CMD = "$UNITY_CMD -buildTarget $target -executeMethod ${UNITY_GOOGLE_EXECUTE_METHOD} -projectPath ${UNITY_PROJECT_PATH}"
+    }
+    sh "$UNITY_CMD"
 }
