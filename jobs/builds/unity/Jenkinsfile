@@ -11,7 +11,18 @@ pipeline {
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#environment */
     environment {
         config = readJSON file: "jobs/builds/unity/${params.REPO}.json"
-        FOO = "${config.Foo}"
+        ALTTESTER_VERSION = "${config.altTesterVersion}"
+        ALTTESTER_UNITY_ASSETS = "${UNITY_PROJECT_PATH}/${config.altTesterUnityAssets}"
+        ALTTESTER_UNITY_SETTINGS = "${UNITY_PROJECT_PATH}/${config.altTesterUnitySettings}"
+        ALTTESTER_UNITY_MANIFEST = "${UNITY_PROJECT_PATH}/${config.altTesterUnityManifest}"
+        ALTTESTER_UNITY_BUILD_FILE_APPLE = "${UNITY_PROJECT_PATH}/${config.altTesterUnityBuildFileApple}"
+        ALTTESTER_UNITY_BUILD_METHOD_APPLE = "${config.altTesterBuildMethodApple}"
+        ALTTESTER_UNITY_BUILD_FILE_GOOGLE = "${UNITY_PROJECT_PATH}/${config.altTesterUnityBuildFileGoogle}"
+        ALTTESTER_UNITY_BUILD_METHOD_GOOGLE = "${config.altTesterBuildMethodGoogle}"
+        ALTTESTER_INPUT_SYSTEM = "${config.altTesterInputSystem}"
+        ALTTESTER_INCLUDE_NEWTONSOFT = "${config.altTesterIncludeNewtonsoft}"
+        UNITY_PROJECT_PATH="${WORKSPACE}/${params.REPO}"
+        UNITY_VERSION = ""
     }
     
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#options */
@@ -21,8 +32,14 @@ pipeline {
     
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#parameters */
     parameters {
-        string(name: "REPO", defaultValue: "", description: "The git repo")
-        string(name: "BRANCH", defaultValue: "", description: "The git branch")
+        // Repository
+        string(name: "REPO", defaultValue: "", description: "The repo to clone")
+        string(name: "BRANCH", defaultValue: "", description: "The branch to checkout")
+        // Target
+        booleanParam(name: "APPLE", defaultValue: false, description: "Build for Apple App Store")
+        booleanParam(name: "GOOGLE", defaultValue: false, description: "Build for Google Play Store")
+        // Test
+        booleanParam(name: "ALTTESTER", defaultValue: false, description: "Instrument test builds with AltTester")
     }
     
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#triggers */
@@ -30,8 +47,14 @@ pipeline {
         GenericTrigger(
             causeString: "Generic WebHook",
             genericVariables: [
+                // Repository
                 [expressionType: "JSONPath", key: "REPO", value: "\$.REPO"],
-                [expressionType: "JSONPath", key: "BRANCH", value: "\$.BRANCH"]
+                [expressionType: "JSONPath", key: "BRANCH", value: "\$.BRANCH"],
+                // Target
+                [expressionType: "JSONPath", key: "APPLE", value: "\$.APPLE"],
+                [expressionType: "JSONPath", key: "GOOGLE", value: "\$.GOOGLE"],
+                // Test
+                [expressionType: "JSONPath", key: "ALTTESTER", value: "\$.ALTTESTER"]
             ],
             printPostContent: true,
             token: "Unity"
@@ -48,12 +71,54 @@ pipeline {
             }
         }
         
-        stage("Print Foo") {
+        stage("Checkout") {
             steps {
-                sh "echo ${FOO}"
+                // Update the Build Name displayed in Jenkins UI
+                currentBuild.displayName = "#${BUILD_NUMBER}-${params.REPO}"
+                // todo: checkout code
+                
+                // Get the Unity Version for _this_ project
+                UNITY_VERSION = sh(script: "echo \$(awk 'NR==1{ print \$2 }' ${UNITY_PROJECT_PATH}/ProjectSettings/ProjectVersion.txt)", returnStdout: true).trim()
             }
         }
-      
+
+        stage("Apple Build") {
+            when {
+                expression { return params.APPLE }
+            }
+            steps {
+                echo "Apple build"
+            }
+        }
+
+        stage("Google Build") {
+            when {
+                expression { return params.GOOGLE }
+            }
+            steps {
+                echo "Google build"
+            }
+        }
+
+        stage("AltTester Instrument") {
+            when {
+                expression { return params.ALTTESTER }
+            }
+            steps {
+                echo "AltTester Instrument"
+                sh "yes | pip3 uninstall AltTester-Instrumenter -q -q -q"
+                sh "pip3 install git+https://github.com/kirbycope/AltTester-Instrumenter.git"
+                if (params.APPLE) {
+                    sh "python3 -m altins --release=${ALTTESTER_VERSION} --assets=${ALTTESTER_UNITY_ASSETS} --settings=${ALTTESTER_UNITY_SETTINGS} --manifest=${ALTTESTER_UNITY_MANIFEST} --buildFile=${ALTTESTER_UNITY_BUILD_FILE_APPLE} --buildMethod=${ALTTESTER_UNITY_BUILD_METHOD_APPLE} --inputSystem=${ALTTESTER_INPUT_SYSTEM} --newt=${ALTTESTER_INCLUDE_NEWTONSOFT}"
+                    // todo: build and rename the binary
+                }
+                if (params.GOOGLE) {
+                    sh "python3 -m altins --release=${ALTTESTER_VERSION} --assets=${ALTTESTER_UNITY_ASSETS} --settings=${ALTTESTER_UNITY_SETTINGS} --manifest=${ALTTESTER_UNITY_MANIFEST} --buildFile=${ALTTESTER_UNITY_BUILD_FILE_GOOGLE} --buildMethod=${ALTTESTER_UNITY_BUILD_METHOD_GOOGLE} --inputSystem=${ALTTESTER_INPUT_SYSTEM} --newt=${ALTTESTER_INCLUDE_NEWTONSOFT}"
+                    // todo: build and rename the binary
+                }
+            }
+        }
+        
     }
     
     /* https://www.jenkins.io/doc/book/pipeline/syntax/#post */
@@ -63,4 +128,12 @@ pipeline {
         }
     }
     
+}
+
+def buildApple() {
+    //
+}
+
+def buildGoogle() {
+    //
 }
