@@ -8,5 +8,7 @@
     "altTesterUnityBuildFileGoogle" : "Assets/Scripts/Editor/Build.cs",
     "altTesterBuildMethodGoogle" : "BuildAndroid",
     "altTesterInputSystem" : "old",
-    "altTesterIncludeNewtonsoft" : "True"
+    "altTesterIncludeNewtonsoft" : "True",
+    "unityAppleExecuteMethod" : "Build.BuildIOS",
+    "unityGoogleExecuteMethod" : "Build.BuildAndroid"
 }
