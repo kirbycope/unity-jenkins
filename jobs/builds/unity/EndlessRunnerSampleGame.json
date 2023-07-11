@@ -1,0 +1,12 @@
+{
+    "altTesterVersion" : "2.0.1",
+    "altTesterUnityAssets" : "Assets",
+    "altTesterUnitySettings" : "ProjectSettings/EditorBuildSettings.asset",
+    "altTesterUnityManifest" : "Packages/manifest.json",
+    "altTesterUnityBuildFileApple" : "Assets/Scripts/Editor/Build.cs",
+    "altTesterBuildMethodApple" : "BuildIOS",
+    "altTesterUnityBuildFileGoogle" : "Assets/Scripts/Editor/Build.cs",
+    "altTesterBuildMethodGoogle" : "BuildAndroid",
+    "altTesterInputSystem" : "old",
+    "altTesterIncludeNewtonsoft" : "True"
+}
