@@ -91,6 +91,7 @@ pipeline {
             steps {
                 echo "Apple build"
                 buildUnity("apple")
+                buildApple()
             }
         }
 
@@ -101,6 +102,7 @@ pipeline {
             steps {
                 echo "Google build"
                 buildUnity("google")
+                buildGoolge()
             }
         }
 
@@ -114,11 +116,12 @@ pipeline {
                 sh "pip3 install git+https://github.com/kirbycope/AltTester-Instrumenter.git"
                 if (params.APPLE) {
                     sh "python3 -m altins --release=${ALTTESTER_VERSION} --assets=${ALTTESTER_UNITY_ASSETS} --settings=${ALTTESTER_UNITY_SETTINGS} --manifest=${ALTTESTER_UNITY_MANIFEST} --buildFile=${ALTTESTER_UNITY_BUILD_FILE_APPLE} --buildMethod=${ALTTESTER_UNITY_BUILD_METHOD_APPLE} --inputSystem=${ALTTESTER_INPUT_SYSTEM} --newt=${ALTTESTER_INCLUDE_NEWTONSOFT}"
-                    // todo: build and rename the binary
-                }
+                    buildUnity("apple")
+                    // todo: rename the binary                }
                 if (params.GOOGLE) {
                     sh "python3 -m altins --release=${ALTTESTER_VERSION} --assets=${ALTTESTER_UNITY_ASSETS} --settings=${ALTTESTER_UNITY_SETTINGS} --manifest=${ALTTESTER_UNITY_MANIFEST} --buildFile=${ALTTESTER_UNITY_BUILD_FILE_GOOGLE} --buildMethod=${ALTTESTER_UNITY_BUILD_METHOD_GOOGLE} --inputSystem=${ALTTESTER_INPUT_SYSTEM} --newt=${ALTTESTER_INCLUDE_NEWTONSOFT}"
-                    // todo: build and rename the binary
+                    buildUnity("google")
+                    // todo: rename the binary
                 }
             }
         }
@@ -135,11 +138,11 @@ pipeline {
 }
 
 def buildApple() {
-    //
+    // todo: run xcode build
 }
 
 def buildGoogle() {
-    //
+    // todo: run gradle build
 }
 
 /**
