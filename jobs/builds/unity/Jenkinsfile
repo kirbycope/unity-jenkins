@@ -90,7 +90,6 @@ pipeline {
             }
             steps {
                 echo "Apple build"
-                buildUnity("apple")
                 buildApple()
             }
         }
@@ -101,7 +100,6 @@ pipeline {
             }
             steps {
                 echo "Google build"
-                buildUnity("google")
                 buildGoolge()
             }
         }
@@ -116,12 +114,12 @@ pipeline {
                 sh "pip3 install git+https://github.com/kirbycope/AltTester-Instrumenter.git"
                 if (params.APPLE) {
                     sh "python3 -m altins --release=${ALTTESTER_VERSION} --assets=${ALTTESTER_UNITY_ASSETS} --settings=${ALTTESTER_UNITY_SETTINGS} --manifest=${ALTTESTER_UNITY_MANIFEST} --buildFile=${ALTTESTER_UNITY_BUILD_FILE_APPLE} --buildMethod=${ALTTESTER_UNITY_BUILD_METHOD_APPLE} --inputSystem=${ALTTESTER_INPUT_SYSTEM} --newt=${ALTTESTER_INCLUDE_NEWTONSOFT}"
-                    buildUnity("apple")
+                    buildApple()
                     // todo: rename the binary
                 }
                 if (params.GOOGLE) {
                     sh "python3 -m altins --release=${ALTTESTER_VERSION} --assets=${ALTTESTER_UNITY_ASSETS} --settings=${ALTTESTER_UNITY_SETTINGS} --manifest=${ALTTESTER_UNITY_MANIFEST} --buildFile=${ALTTESTER_UNITY_BUILD_FILE_GOOGLE} --buildMethod=${ALTTESTER_UNITY_BUILD_METHOD_GOOGLE} --inputSystem=${ALTTESTER_INPUT_SYSTEM} --newt=${ALTTESTER_INCLUDE_NEWTONSOFT}"
-                    buildUnity("google")
+                    buildGoogle()
                     // todo: rename the binary
                 }
             }
@@ -138,25 +136,43 @@ pipeline {
     
 }
 
+/**
+* Runs the XCode build.
+* 
+* @param String the IPA file name
+* @return String the IPA file path
+*/
 def buildApple() {
+    buildUnity("iOS")
+    // Clear XCode cache
+    sh "rm -rf ~/Library/Developer/Xcode/DerivedData"
     // todo: run xcode build
+    return ""
 }
 
+/**
+* Runs the Gradle build.
+*
+* @param String the AAB file name
+* @return String the AAB file path
+*/
 def buildGoogle() {
-    // todo: run gradle build
+    buildUnity("Android")
+    // todo: run gradle build (if needed)
+    return ""
 }
 
 /**
 * Runs the Unity build.
 *
-* @param String target The Build Target ("Apple" or "Google").
+* @param String target The Build Target ("Android" or "iOS").
 */
 def buildUnity(target) {
     def UNITY_CMD = "/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -batchmode -nographics -stackTraceLogType Full -quit -logFile ${target}-build.log"
-    if (target.toLowerCase() == "apple") {
+    if (target.toLowerCase() == "ios") {
         UNITY_CMD = "$UNITY_CMD -buildTarget $target -executeMethod ${UNITY_APPLE_EXECUTE_METHOD} -projectPath ${UNITY_PROJECT_PATH}"
     }
-    else if (target.toLowerCase() == "google") {
+    else if (target.toLowerCase() == "android") {
         UNITY_CMD = "$UNITY_CMD -buildTarget $target -executeMethod ${UNITY_GOOGLE_EXECUTE_METHOD} -projectPath ${UNITY_PROJECT_PATH}"
     }
     sh "$UNITY_CMD"
