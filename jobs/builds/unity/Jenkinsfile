@@ -90,7 +90,7 @@ pipeline {
             }
             steps {
                 echo "Apple build"
-                buildApple()
+                buildApple("apple.ipa")
             }
         }
 
@@ -100,7 +100,7 @@ pipeline {
             }
             steps {
                 echo "Google build"
-                buildGoolge()
+                buildGoolge("google.apk")
             }
         }
 
@@ -114,13 +114,11 @@ pipeline {
                 sh "pip3 install git+https://github.com/kirbycope/AltTester-Instrumenter.git"
                 if (params.APPLE) {
                     sh "python3 -m altins --release=${ALTTESTER_VERSION} --assets=${ALTTESTER_UNITY_ASSETS} --settings=${ALTTESTER_UNITY_SETTINGS} --manifest=${ALTTESTER_UNITY_MANIFEST} --buildFile=${ALTTESTER_UNITY_BUILD_FILE_APPLE} --buildMethod=${ALTTESTER_UNITY_BUILD_METHOD_APPLE} --inputSystem=${ALTTESTER_INPUT_SYSTEM} --newt=${ALTTESTER_INCLUDE_NEWTONSOFT}"
-                    buildApple()
-                    // todo: rename the binary
+                    buildApple("altins.ipa")
                 }
                 if (params.GOOGLE) {
                     sh "python3 -m altins --release=${ALTTESTER_VERSION} --assets=${ALTTESTER_UNITY_ASSETS} --settings=${ALTTESTER_UNITY_SETTINGS} --manifest=${ALTTESTER_UNITY_MANIFEST} --buildFile=${ALTTESTER_UNITY_BUILD_FILE_GOOGLE} --buildMethod=${ALTTESTER_UNITY_BUILD_METHOD_GOOGLE} --inputSystem=${ALTTESTER_INPUT_SYSTEM} --newt=${ALTTESTER_INCLUDE_NEWTONSOFT}"
-                    buildGoogle()
-                    // todo: rename the binary
+                    buildGoogle("altins.apk")
                 }
             }
         }
@@ -139,11 +137,11 @@ pipeline {
 /**
 * Runs the XCode build.
 * 
-* @param String the IPA file name
+* @param String binaryFileName The IPA file name
 * @return String the IPA file path
 */
-def buildApple() {
-    buildUnity("iOS")
+def buildApple(binaryFileName) {
+    buildUnity("iOS", "build-${binaryFileName}")
     // Clear XCode cache
     sh "rm -rf ~/Library/Developer/Xcode/DerivedData"
     // todo: run xcode build
@@ -153,11 +151,11 @@ def buildApple() {
 /**
 * Runs the Gradle build.
 *
-* @param String the AAB file name
-* @return String the AAB file path
+* @param String binaryFileName The AAB file name
+* @return String The AAB file path
 */
-def buildGoogle() {
-    buildUnity("Android")
+def buildGoogle(binaryFileName) {
+    buildUnity("Android", "build-${binaryFileName}")
     // todo: run gradle build (if needed)
     return ""
 }
@@ -165,15 +163,11 @@ def buildGoogle() {
 /**
 * Runs the Unity build.
 *
-* @param String target The Build Target ("Android" or "iOS").
+* @param String target The Build Target ("Android" or "iOS")
+* @param String logName The file name of the Unity build log
 */
-def buildUnity(target) {
-    def UNITY_CMD = "/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -batchmode -nographics -stackTraceLogType Full -quit -logFile ${target}-build.log"
-    if (target.toLowerCase() == "ios") {
-        UNITY_CMD = "$UNITY_CMD -buildTarget $target -executeMethod ${UNITY_APPLE_EXECUTE_METHOD} -projectPath ${UNITY_PROJECT_PATH}"
-    }
-    else if (target.toLowerCase() == "android") {
-        UNITY_CMD = "$UNITY_CMD -buildTarget $target -executeMethod ${UNITY_GOOGLE_EXECUTE_METHOD} -projectPath ${UNITY_PROJECT_PATH}"
-    }
+def buildUnity(target, logName) {
+    def UNITY_CMD = "/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -batchmode -nographics -stackTraceLogType Full -quit -logFile $logName.log -projectPath ${UNITY_PROJECT_PATH} -buildTarget $target"
+    UNITY_CMD = (target == "Android") ? "$UNITY_CMD -executeMethod ${UNITY_GOOGLE_EXECUTE_METHOD}" : "$UNITY_CMD -executeMethod ${UNITY_APPLE_EXECUTE_METHOD}"
     sh "$UNITY_CMD"
 }
