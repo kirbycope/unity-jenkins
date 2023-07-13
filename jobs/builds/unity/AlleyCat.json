@@ -3,12 +3,12 @@
     "altTesterUnityAssets" : "Assets",
     "altTesterUnitySettings" : "ProjectSettings/EditorBuildSettings.asset",
     "altTesterUnityManifest" : "Packages/manifest.json",
-    "altTesterUnityBuildFileApple" : "Assets/Scripts/Editor/Build.cs",
-    "altTesterBuildMethodApple" : "BuildIOS",
-    "altTesterUnityBuildFileGoogle" : "Assets/Scripts/Editor/Build.cs",
+    "altTesterUnityBuildFileApple" : "Assets/Editor/Build.cs",
+    "altTesterBuildMethodApple" : "BuildIos",
+    "altTesterUnityBuildFileGoogle" : "Assets/Editor/Build.cs",
     "altTesterBuildMethodGoogle" : "BuildAndroid",
     "altTesterInputSystem" : "old",
     "altTesterIncludeNewtonsoft" : "True",
-    "unityAppleExecuteMethod" : "Build.BuildIOS",
-    "unityGoogleExecuteMethod" : "Build.BuildAndroid"
+    "unityAppleExecuteMethod" : "Builder.BuildIos",
+    "unityGoogleExecuteMethod" : "Builder.BuildAndroid"
 }
