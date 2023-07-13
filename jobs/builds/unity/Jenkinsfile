@@ -169,7 +169,7 @@ def buildGoogle(binaryFileName) {
 * @param String binaryFileName The binary file name
 */
 def buildUnity(target, binaryFileName) {
-    def UNITY_CMD = "/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -batchmode -nographics -stackTraceLogType Full -quit -logFile build-${binaryFileName}.log -projectPath ${UNITY_PROJECT_PATH} -buildTarget ${target}"
+    def UNITY_CMD = "/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -batchmode -nographics -stackTraceLogType Full -quit -logFile build-${binaryFileName}-${target}.log -projectPath ${UNITY_PROJECT_PATH} -buildTarget ${target}"
     UNITY_CMD = (target == "Android") ? "${UNITY_CMD} -executeMethod ${UNITY_GOOGLE_EXECUTE_METHOD}" : "${UNITY_CMD} -executeMethod ${UNITY_APPLE_EXECUTE_METHOD}"
     sh "${UNITY_CMD}"
 }
