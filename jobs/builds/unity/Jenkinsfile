@@ -141,11 +141,12 @@ pipeline {
 * @return String the IPA file path
 */
 def buildApple(binaryFileName) {
-    buildUnity("iOS", "build-${binaryFileName}")
+    buildUnity("iOS", binaryFileName)
     // Clear XCode cache
     sh "rm -rf ~/Library/Developer/Xcode/DerivedData"
     // todo: run xcode build
-    return ""
+    def ipas = findFiles(glob: "**/${binaryFileName}.ipa")
+    return ipa[0].path
 }
 
 /**
@@ -155,19 +156,20 @@ def buildApple(binaryFileName) {
 * @return String The AAB file path
 */
 def buildGoogle(binaryFileName) {
-    buildUnity("Android", "build-${binaryFileName}")
+    buildUnity("Android", binaryFileName)
     // todo: run gradle build (if needed)
-    return ""
+    def apks = findFiles(glob: "**/${binaryFileName}.apk")
+    return apks[0].path
 }
 
 /**
 * Runs the Unity build.
 *
 * @param String target The Build Target ("Android" or "iOS")
-* @param String logName The file name of the Unity build log
+* @param String binaryFileName The binary file name
 */
-def buildUnity(target, logName) {
-    def UNITY_CMD = "/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -batchmode -nographics -stackTraceLogType Full -quit -logFile $logName.log -projectPath ${UNITY_PROJECT_PATH} -buildTarget $target"
-    UNITY_CMD = (target == "Android") ? "$UNITY_CMD -executeMethod ${UNITY_GOOGLE_EXECUTE_METHOD}" : "$UNITY_CMD -executeMethod ${UNITY_APPLE_EXECUTE_METHOD}"
-    sh "$UNITY_CMD"
+def buildUnity(target, binaryFileName) {
+    def UNITY_CMD = "/Applications/Unity/Hub/Editor/${UNITY_VERSION}/Unity.app/Contents/MacOS/Unity -batchmode -nographics -stackTraceLogType Full -quit -logFile build-${binaryFileName}.log -projectPath ${UNITY_PROJECT_PATH} -buildTarget ${target}"
+    UNITY_CMD = (target == "Android") ? "${UNITY_CMD} -executeMethod ${UNITY_GOOGLE_EXECUTE_METHOD}" : "${UNITY_CMD} -executeMethod ${UNITY_APPLE_EXECUTE_METHOD}"
+    sh "${UNITY_CMD}"
 }
